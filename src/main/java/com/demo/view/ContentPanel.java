@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ContentPanel {
-    public JPanel renderContentPanel() {
+    public JPanel render() {
         JLabel outputDirLabel = new JLabel("輸出路徑：");
         JTextField outputDirField = new JTextField(50);
         JButton browseButton = new JButton("選擇");

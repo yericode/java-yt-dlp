@@ -7,7 +7,7 @@ import java.awt.*;
 
 
 public class BottomPanel {
-    public JPanel renderBottomPanel() {
+    public JPanel render() {
         JPanel panel = new JPanel();
         SpringLayout layout = new SpringLayout();
         panel.setLayout(layout);

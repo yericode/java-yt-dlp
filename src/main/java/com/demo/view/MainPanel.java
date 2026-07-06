@@ -20,9 +20,9 @@ public class MainPanel extends JFrame {
         JPanel mainPanel = new JPanel(new BorderLayout(8, 8));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
-        JScrollPane urlPanel = new UrlPanel().renderTextArea();
-        JPanel contentPanel = new ContentPanel().renderContentPanel();
-        JPanel bottomPanel = new BottomPanel().renderBottomPanel();
+        JScrollPane urlPanel = new UrlPanel().render();
+        JPanel contentPanel = new ContentPanel().render();
+        JPanel bottomPanel = new BottomPanel().render();
 
         // 中間主要區域：textarea 會吃掉主要可伸縮空間
         mainPanel.add(urlPanel, BorderLayout.CENTER);
