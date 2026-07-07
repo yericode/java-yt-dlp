@@ -1,30 +1,58 @@
 package com.demo.view;
 
-import com.demo.dto.Version;
+import com.demo.vo.VersionInfo;
 
 import javax.swing.*;
 import java.awt.*;
 
 
-public class BottomPanel {
-    public JPanel render() {
-        JPanel panel = new JPanel();
-        SpringLayout layout = new SpringLayout();
-        panel.setLayout(layout);
+public class BottomPanel extends JPanel {
+    private final JProgressBar progressBar = new JProgressBar(0, 100);
+    private final JLabel versionLabel = new JLabel("");
+    private final VersionInfo versionInfo;
 
-        panel.setPreferredSize(new Dimension(600, 36));
-        panel.setMinimumSize(new Dimension(0, 36));
-        panel.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
-
-        panel.add(renderProgressBar(layout, panel));
-        panel.add(renderVersionInfo(layout, panel, new Version("2026.06.17", "2026.07.06")));
-        return panel;
+    public BottomPanel(VersionInfo versionInfo) {
+        this.versionInfo = versionInfo;
+        initLayout();
     }
 
-    private JProgressBar renderProgressBar(SpringLayout layout, JPanel panel) {
-        JProgressBar progressBar = new JProgressBar(0, 100);
-        progressBar.setValue(45);
+    public void setVersionInfo(VersionInfo versionInfo) {
+        versionLabel.setText(versionInfo.displayText());
+    }
+
+    public void showProgressBar(int value) {
+        progressBar.setValue(value);
+        progressBar.setVisible(true);
+        revalidate();
+        repaint();
+    }
+
+    public void setProgress(int value) {
+        progressBar.setValue(value);
+    }
+
+    public void hideProgressBar() {
+        progressBar.setVisible(false);
+        revalidate();
+        repaint();
+    }
+
+    private void initLayout() {
+        SpringLayout layout = new SpringLayout();
+        setLayout(layout);
+
+        setPreferredSize(new Dimension(600, 36));
+        setMinimumSize(new Dimension(0, 36));
+        setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+
+        add(progressBar(layout, this));
+        add(versionLabel(layout, this, versionInfo));
+    }
+
+    private JProgressBar progressBar(SpringLayout layout, JPanel panel) {
+        progressBar.setValue(0);
         progressBar.setStringPainted(true);
+        progressBar.setVisible(false);
         progressBar.setPreferredSize(new Dimension(240, 20));
         // progressBar：永遠以 bottomPanel 整體為基準置中
         layout.putConstraint(
@@ -44,23 +72,23 @@ public class BottomPanel {
         return progressBar;
     }
 
-    private JLabel renderVersionInfo(SpringLayout layout, JPanel panel, Version version) {
-        JLabel versionInfo = new JLabel(String.format("[%s]", version));
+    private JLabel versionLabel(SpringLayout layout, JPanel panel, VersionInfo versionInfo) {
+        versionLabel.setText(versionInfo.displayText());
         // versionLabel：永遠貼右，右邊保留 8px
         layout.putConstraint(
                 SpringLayout.EAST,
-                versionInfo,
+                versionLabel,
                 -8,
                 SpringLayout.EAST,
                 panel
         );
         layout.putConstraint(
                 SpringLayout.VERTICAL_CENTER,
-                versionInfo,
+                versionLabel,
                 0,
                 SpringLayout.VERTICAL_CENTER,
                 panel
         );
-        return versionInfo;
+        return versionLabel;
     }
 }

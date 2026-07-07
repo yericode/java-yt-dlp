@@ -1,27 +1,187 @@
 package com.demo.view;
 
-import javax.swing.*;
-import java.awt.*;
+import com.demo.vo.CheckboxOptions;
 
-public class ContentPanel {
-    public JPanel render() {
-        JLabel outputDirLabel = new JLabel("輸出路徑：");
-        JTextField outputDirField = new JTextField(50);
-        JButton browseButton = new JButton("選擇");
-        JLabel formatLabel = new JLabel("輸出選項：");
-        JCheckBox thumbnailCheckBox = new JCheckBox("保留縮圖");
-        JCheckBox metadataCheckBox = new JCheckBox("保留 metadata");
-        JCheckBox mp4CheckBox = new JCheckBox("輸出 MP4");
-        JCheckBox listCheckBox = new JCheckBox("下載整個清單");
-        JButton downloadButton = new JButton("下載");
-        JButton updateButton = new JButton("更新");
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import java.awt.*;
+import java.util.List;
+
+public class ContentPanel extends JPanel {
+    public interface Listener {
+        void onOutputDirChanged(String outputDir);
+        void onOptionChanged(CheckboxOptions options);
+        void onBrowseClicked();
+        void onDownloadClicked();
+        void onUpdateClicked();
+    }
+
+    // label
+    private final JLabel outputDirLabel = new JLabel("輸出路徑：");
+    private final JLabel formatLabel = new JLabel("輸出選項：");
+    // output dir
+    private final JTextField outputDirField = new JTextField(50);
+    private final JButton browseButton = new JButton("選擇");
+    // checkbox
+    private final JCheckBox thumbnailCheckBox = new JCheckBox("保留縮圖");
+    private final JCheckBox metadataCheckBox = new JCheckBox("保留 metadata");
+    private final JCheckBox mp4CheckBox = new JCheckBox("輸出 MP4");
+    private final JCheckBox listCheckBox = new JCheckBox("下載整個清單");
+    // button
+    private final JButton downloadButton = new JButton("下載");
+    private final JButton updateButton = new JButton("更新");
+    // listener
+    private Listener listener;
+
+    public ContentPanel() {
+        initLayout();
+        initAction();
+    }
+
+    public void setEventListener(Listener listener) {
+        this.listener = listener;
+    }
+
+    private void initAction() {
+        outputDirField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                System.out.println("insert");
+                listener.onOutputDirChanged(outputDirField.getText());
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                System.out.println("remove");
+                listener.onOutputDirChanged(outputDirField.getText());
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                System.out.println("change");
+                listener.onOutputDirChanged(outputDirField.getText());
+            }
+        });
+        thumbnailCheckBox.addItemListener(e -> listener.onOptionChanged(checkboxOptions()));
+        metadataCheckBox.addItemListener(e -> listener.onOptionChanged(checkboxOptions()));
+        mp4CheckBox.addItemListener(e -> listener.onOptionChanged(checkboxOptions()));
+        listCheckBox.addItemListener(e -> listener.onOptionChanged(checkboxOptions()));
+
+        browseButton.addActionListener(e -> listener.onBrowseClicked());
+        downloadButton.addActionListener(e -> listener.onDownloadClicked());
+        updateButton.addActionListener(e -> listener.onUpdateClicked());
+    }
+
+    private CheckboxOptions checkboxOptions() {
+        return new CheckboxOptions(
+                thumbnailCheckBox.isSelected(),
+                metadataCheckBox.isSelected(),
+                mp4CheckBox.isSelected(),
+                listCheckBox.isSelected()
+        );
+    }
+
+    private void initLayout() {
+        GroupLayout rootLayout = new GroupLayout(this);
+        this.setLayout(rootLayout);
+        this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+
+        JPanel outputDirPanel = outputDirPanel();
+        JPanel checkboxPanel = checkboxPanel();
+        JPanel buttonPanel = buttonPanel();
+
+        rootLayout.setAutoCreateGaps(true);
+        rootLayout.setAutoCreateContainerGaps(false);
+        rootLayout.setHorizontalGroup(
+                rootLayout.createSequentialGroup()
+                        .addGroup(
+                                rootLayout.createParallelGroup(GroupLayout.Alignment.TRAILING)
+                                        .addComponent(outputDirLabel)
+                                        .addComponent(formatLabel)
+                        )
+                        .addGroup(
+                                rootLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(
+                                                outputDirPanel,
+                                                0,
+                                                GroupLayout.DEFAULT_SIZE,
+                                                Short.MAX_VALUE
+                                        )
+                                        .addComponent(
+                                                checkboxPanel,
+                                                GroupLayout.PREFERRED_SIZE,
+                                                GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.PREFERRED_SIZE
+                                        )
+                                        .addComponent(
+                                                buttonPanel,
+                                                GroupLayout.PREFERRED_SIZE,
+                                                GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.PREFERRED_SIZE
+                                        )
+                        )
+        );
+
+        rootLayout.setVerticalGroup(
+                rootLayout.createSequentialGroup()
+                        .addGroup(
+                                rootLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(outputDirLabel)
+                                        .addComponent(
+                                                outputDirPanel,
+                                                GroupLayout.PREFERRED_SIZE,
+                                                GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.PREFERRED_SIZE
+                                        )
+                        )
+                        .addGroup(
+                                rootLayout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                                        .addComponent(formatLabel)
+                                        .addComponent(checkboxPanel)
+                        )
+                        .addComponent(buttonPanel)
+        );
+    }
+
+    private JPanel outputDirPanel() {
+        JPanel outputDirPanel = new JPanel();
+        GroupLayout outputDirLayout = new GroupLayout(outputDirPanel);
+
+        outputDirPanel.setLayout(outputDirLayout);
+        outputDirLayout.setAutoCreateGaps(true);
+        outputDirLayout.setAutoCreateContainerGaps(false);
+        outputDirLayout.setHorizontalGroup(
+                outputDirLayout.createSequentialGroup()
+                        .addComponent(
+                                outputDirField,
+                                0,
+                                GroupLayout.DEFAULT_SIZE,
+                                Short.MAX_VALUE
+                        )
+                        .addComponent(browseButton)
+        );
+
+        outputDirLayout.setVerticalGroup(
+                outputDirLayout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                        .addComponent(
+                                outputDirField,
+                                GroupLayout.PREFERRED_SIZE,
+                                GroupLayout.DEFAULT_SIZE,
+                                GroupLayout.PREFERRED_SIZE
+                        )
+                        .addComponent(browseButton)
+        );
+        return outputDirPanel;
+    }
+
+    private JPanel checkboxPanel() {
         JPanel checkboxPanel = new JPanel();
         GroupLayout checkboxLayout = new GroupLayout(checkboxPanel);
-        checkboxPanel.setLayout(checkboxLayout);
 
+        checkboxPanel.setLayout(checkboxLayout);
         checkboxLayout.setAutoCreateGaps(true);
         checkboxLayout.setAutoCreateContainerGaps(false);
-
         checkboxLayout.setHorizontalGroup(
                 checkboxLayout.createSequentialGroup()
                         .addGroup(
@@ -49,73 +209,13 @@ public class ContentPanel {
                                         .addComponent(listCheckBox)
                         )
         );
+        return checkboxPanel;
+    }
 
+    private JPanel buttonPanel() {
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         buttonPanel.add(downloadButton);
         buttonPanel.add(updateButton);
-
-        JPanel contentPanel = new JPanel();
-        contentPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-
-        GroupLayout layout = new GroupLayout(contentPanel);
-        contentPanel.setLayout(layout);
-
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(false);
-        layout.setHorizontalGroup(
-                layout.createSequentialGroup()
-                        .addGroup(
-                                layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
-                                        .addComponent(outputDirLabel)
-                                        .addComponent(formatLabel)
-                        )
-                        .addGroup(
-                                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addGroup(
-                                                layout.createSequentialGroup()
-                                                        .addComponent(
-                                                                outputDirField,
-                                                                0,
-                                                                GroupLayout.DEFAULT_SIZE,
-                                                                Short.MAX_VALUE
-                                                        )
-                                                        .addComponent(browseButton)
-                                        )
-                                        .addComponent(
-                                                checkboxPanel,
-                                                GroupLayout.PREFERRED_SIZE,
-                                                GroupLayout.DEFAULT_SIZE,
-                                                GroupLayout.PREFERRED_SIZE
-                                        )
-                                        .addComponent(
-                                                buttonPanel,
-                                                GroupLayout.PREFERRED_SIZE,
-                                                GroupLayout.DEFAULT_SIZE,
-                                                GroupLayout.PREFERRED_SIZE
-                                        )
-                        )
-        );
-
-        layout.setVerticalGroup(
-                layout.createSequentialGroup()
-                        .addGroup(
-                                layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
-                                        .addComponent(outputDirLabel)
-                                        .addComponent(
-                                                outputDirField,
-                                                GroupLayout.PREFERRED_SIZE,
-                                                GroupLayout.DEFAULT_SIZE,
-                                                GroupLayout.PREFERRED_SIZE
-                                        )
-                                        .addComponent(browseButton)
-                        )
-                        .addGroup(
-                                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addComponent(formatLabel)
-                                        .addComponent(checkboxPanel)
-                        )
-                        .addComponent(buttonPanel)
-        );
-        return contentPanel;
+        return buttonPanel;
     }
 }
