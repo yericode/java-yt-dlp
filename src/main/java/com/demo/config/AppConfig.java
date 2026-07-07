@@ -13,10 +13,6 @@ import java.time.temporal.ChronoUnit;
 
 @Configuration
 public class AppConfig {
-
-    @Value("${path.yt-dlp}")
-    private String ytDlpPath;
-
     @Bean
     public HttpClient httpClient() {
         return HttpClient.newBuilder()

@@ -1,9 +1,16 @@
 spring:
   application:
     name: java-yt-dlp
-
 api:
   getVersionInfo: https://api.github.com/repos/yt-dlp/yt-dlp/releases/latest
-
 path:
-  yt-dlp: "${app.home:.}/lib/yt-dlp.exe"
+  yt-dlp: "${APP_HOME_DIR:.}/lib/yt-dlp.exe"
+  default-output-dir: "${APP_DEFAULT_OUTPUT_DIR:./output}"
+logging:
+  file:
+    name: ${APP_LOG_DIR:.}/app.log
+  logback:
+    rollingpolicy:
+      max-file-size: 50MB
+      total-size-cap: 50MB
+      max-history: 1

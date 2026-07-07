@@ -1,18 +1,18 @@
 package com.demo.view;
 
 import com.demo.vo.VersionInfo;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
 
-
+@Component
 public class BottomPanel extends JPanel {
     private final JProgressBar progressBar = new JProgressBar(0, 100);
     private final JLabel versionLabel = new JLabel("");
-    private final VersionInfo versionInfo;
+    private VersionInfo versionInfo;
 
-    public BottomPanel(VersionInfo versionInfo) {
-        this.versionInfo = versionInfo;
+    public BottomPanel() {
         initLayout();
     }
 
@@ -73,7 +73,9 @@ public class BottomPanel extends JPanel {
     }
 
     private JLabel versionLabel(SpringLayout layout, JPanel panel, VersionInfo versionInfo) {
-        versionLabel.setText(versionInfo.displayText());
+        if (versionInfo != null) {
+            versionLabel.setText(versionInfo.displayText());
+        }
         // versionLabel：永遠貼右，右邊保留 8px
         layout.putConstraint(
                 SpringLayout.EAST,

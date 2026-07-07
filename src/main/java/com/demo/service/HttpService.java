@@ -3,6 +3,8 @@ package com.demo.service;
 import com.demo.dto.GetLatestVersionOutput;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +16,7 @@ import java.net.http.HttpResponse;
 
 @Service
 public class HttpService {
+    private static final Logger log = LoggerFactory.getLogger(HttpService.class);
 
     @Value("${api.getVersionInfo}")
     private String getVersionInfoUrl;
@@ -40,21 +43,21 @@ public class HttpService {
             } else {
                 isSuccess = false;
                 rtnMsg = "Call API getVersionInfo 狀態異常: " + response.statusCode();
-                System.err.println(rtnMsg);
+                log.error(rtnMsg);
             }
         } catch (IOException e) {
             isSuccess = false;
             rtnMsg = "Call API 傳輸資料發生異常";
-            System.err.println(rtnMsg + e);
+            log.error(rtnMsg, e);
         } catch (InterruptedException e) {
             isSuccess = false;
             rtnMsg = "Call API 請求中斷";
-            System.err.println(rtnMsg + e);
+            log.error(rtnMsg, e);
             Thread.currentThread().interrupt(); // 恢復 interrupt flag
         } catch (Exception e) {
             isSuccess = false;
             rtnMsg = "未預期錯誤";
-            System.err.println(rtnMsg + e);
+            log.error(rtnMsg, e);
         }
         return new GetLatestVersionOutput(isSuccess, rtnMsg, latestVersion);
     }

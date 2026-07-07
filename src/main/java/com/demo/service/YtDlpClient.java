@@ -1,6 +1,9 @@
 package com.demo.service;
 
 import com.demo.dto.GetCurrentVersionOutput;
+import com.demo.view.MainPanel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +15,7 @@ import java.util.List;
 
 @Service
 public class YtDlpClient {
+    private static final Logger log = LoggerFactory.getLogger(YtDlpClient.class);
 
     @Value("${path.yt-dlp}")
     private String ytDlpPath;
@@ -40,21 +44,21 @@ public class YtDlpClient {
             } else {
                 isSuccess = false;
                 rtnMsg = "yt-dlp 執行失敗，Exit Code: " + exitCode;
-                System.err.println(rtnMsg);
+                log.error(rtnMsg);
             }
         } catch (IOException e) {
             isSuccess = false;
             rtnMsg = "yt-dlp.exe 路徑異常";
-            System.err.println(rtnMsg + e);
+            log.error(rtnMsg, e);
         } catch (InterruptedException e) {
             isSuccess = false;
             rtnMsg = "yt-dlp.exe 命令執行中斷";
-            System.err.println(rtnMsg + e);
+            log.error(rtnMsg, e);
             Thread.currentThread().interrupt(); // 恢復 interrupt flag
         } catch (Exception e) {
             isSuccess = false;
             rtnMsg = "未預期錯誤";
-            System.err.println(rtnMsg + e);
+            log.error(rtnMsg, e);
         }
         return new GetCurrentVersionOutput(isSuccess, rtnMsg, currentVersion);
     }

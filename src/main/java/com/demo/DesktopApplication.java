@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import javax.swing.*;
+import java.nio.file.Path;
 
 @SpringBootApplication
 public class DesktopApplication {

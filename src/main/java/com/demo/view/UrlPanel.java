@@ -1,11 +1,14 @@
 package com.demo.view;
 
+import org.springframework.stereotype.Component;
+
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.util.Arrays;
 import java.util.List;
 
+@Component
 public class UrlPanel extends JScrollPane {
     public interface Listener {
         void onUrlListChanged(List<String> urlList);

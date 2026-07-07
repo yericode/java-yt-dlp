@@ -8,15 +8,20 @@ import com.demo.vo.CheckboxOptions;
 import com.demo.vo.State;
 import com.demo.vo.VersionInfo;
 import org.apache.logging.log4j.util.Strings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
 public class MainPanel extends JFrame {
+    private static final Logger log = LoggerFactory.getLogger(MainPanel.class);
+
     private State state;
     private final UrlPanel urlPanel;
     private final ContentPanel contentPanel;
@@ -24,7 +29,13 @@ public class MainPanel extends JFrame {
     private final HttpService httpService;
     private final YtDlpClient ytDlpClient;
 
-    public MainPanel(HttpService httpService, YtDlpClient ytDlpClient) throws HeadlessException {
+    public MainPanel(
+            HttpService httpService,
+            YtDlpClient ytDlpClient,
+            UrlPanel urlPanel,
+            ContentPanel contentPanel,
+            BottomPanel bottomPanel
+    ) throws HeadlessException {
         state = new State(
                 new ArrayList<>(),
                 Strings.EMPTY,
@@ -35,9 +46,9 @@ public class MainPanel extends JFrame {
                         false
                 )
         );
-        this.urlPanel = new UrlPanel();
-        this.contentPanel = new ContentPanel();
-        this.bottomPanel = new BottomPanel(new VersionInfo("-", "-"));
+        this.urlPanel = urlPanel;
+        this.contentPanel = contentPanel;
+        this.bottomPanel = bottomPanel;
         this.httpService = httpService;
         this.ytDlpClient = ytDlpClient;
 
@@ -80,6 +91,7 @@ public class MainPanel extends JFrame {
     }
 
     private void init() {
+        this.bottomPanel.setVersionInfo(new VersionInfo("-", "-"));
         this.bindEventListener();
         this.loadVersionInfoAsync();
     }
@@ -92,7 +104,7 @@ public class MainPanel extends JFrame {
             protected VersionInfo doInBackground() {
                 GetLatestVersionOutput latestOutput = httpService.getLatestVersion();
                 GetCurrentVersionOutput currentOutput = ytDlpClient.getCurrentVersion();
-                return new VersionInfo(latestOutput.getLatestVersion(), currentOutput.getCurrentVersion());
+                return new VersionInfo(currentOutput.getCurrentVersion(), latestOutput.getLatestVersion());
             }
 
             @Override
@@ -105,7 +117,7 @@ public class MainPanel extends JFrame {
                     bottomPanel.setProgress(100);
                     hideProgressBarAfter(100);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    log.error("非同步取得版本資訊發生異常: ", e);
                     bottomPanel.hideProgressBar();
                 }
             }
@@ -121,34 +133,65 @@ public class MainPanel extends JFrame {
 
     private void handleUrlListChanged(List<String> urlList) {
         setState(urlList, state.outputDir(), state.options());
-        System.out.println(state);
+        log.info(String.valueOf(state));
     }
 
     private void handleOutputDirChanged(String dir) {
         setState(state.urlList(), dir, state.options());
-        System.out.println(state);
+        log.info(String.valueOf(state));
     }
 
     private void handleCheckBoxOptionsChanged(CheckboxOptions options) {
         setState(state.urlList(), state.outputDir(), options);
-        System.out.println(state);
+        log.info(String.valueOf(state));
     }
 
     private void handleBrowseClicked() {
-        System.out.println("browse");
+        JFileChooser chooser = new JFileChooser();
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        chooser.setAcceptAllFileFilterUsed(false);
+        chooser.setDialogTitle("選擇輸出資料夾");
+
+        int result = chooser.showOpenDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File selectedFile = chooser.getSelectedFile();
+
+        if (selectedFile == null) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "沒有選擇任何資料夾",
+                    "選擇錯誤",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+
+        if (!selectedFile.isDirectory()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "請選擇資料夾，不要選擇檔案",
+                    "選擇錯誤",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        contentPanel.setOutputDir(selectedFile.getAbsolutePath());
     }
 
     private void handleDownloadClicked() {
-        System.out.println("download");
+        log.info("download");
     }
 
     private void handleUpdateClicked() {
-        System.out.println("update");
+        log.info("update");
     }
 
     private void setState(List<String> urlList, String outputDir, CheckboxOptions options) {
         this.state = new State(urlList, outputDir, options);
-        System.out.println(state);
+        log.info(String.valueOf(state));
     }
 
     private JPanel mainPanel() {

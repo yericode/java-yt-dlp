@@ -33,3 +33,9 @@ build/
 .vscode/
 
 /lib
+/output
+*.log
+*.gz
+*.zip
+*.rar
+*.7z

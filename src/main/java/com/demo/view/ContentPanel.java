@@ -1,14 +1,23 @@
 package com.demo.view;
 
 import com.demo.vo.CheckboxOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
-import java.util.List;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
+@Component
 public class ContentPanel extends JPanel {
+    private static final Logger log = LoggerFactory.getLogger(ContentPanel.class);
+
     public interface Listener {
         void onOutputDirChanged(String outputDir);
         void onOptionChanged(CheckboxOptions options);
@@ -34,8 +43,10 @@ public class ContentPanel extends JPanel {
     // listener
     private Listener listener;
 
-    public ContentPanel() {
-        initLayout();
+    public ContentPanel(
+            @Value("${path.default-output-dir}") String defaultOutputDir
+    ) {
+        initLayout(defaultOutputDir);
         initAction();
     }
 
@@ -73,6 +84,10 @@ public class ContentPanel extends JPanel {
         updateButton.addActionListener(e -> listener.onUpdateClicked());
     }
 
+    public void setOutputDir(String dir) {
+        outputDirField.setText(dir);
+    }
+
     private CheckboxOptions checkboxOptions() {
         return new CheckboxOptions(
                 thumbnailCheckBox.isSelected(),
@@ -82,7 +97,7 @@ public class ContentPanel extends JPanel {
         );
     }
 
-    private void initLayout() {
+    private void initLayout(String defaultOutputDir) {
         GroupLayout rootLayout = new GroupLayout(this);
         this.setLayout(rootLayout);
         this.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
@@ -142,6 +157,17 @@ public class ContentPanel extends JPanel {
                         )
                         .addComponent(buttonPanel)
         );
+
+        if (defaultOutputDir != null && !defaultOutputDir.isBlank()) {
+            Path outputDir = Path.of(defaultOutputDir).toAbsolutePath().normalize();
+
+            try {
+                Files.createDirectories(outputDir);
+                outputDirField.setText(outputDir.toString());
+            } catch (IOException e) {
+                log.error("建立預設輸出路徑發生異常", e);
+            }
+        }
     }
 
     private JPanel outputDirPanel() {
