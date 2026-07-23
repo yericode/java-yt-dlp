@@ -19,17 +19,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class MainPanel extends JFrame {
-    private static final Logger log = LoggerFactory.getLogger(MainPanel.class);
+public class RootPanel extends JPanel {
+    private static final Logger log = LoggerFactory.getLogger(RootPanel.class);
 
-    private State state;
     private final UrlPanel urlPanel;
     private final ContentPanel contentPanel;
     private final BottomPanel bottomPanel;
     private final HttpService httpService;
     private final YtDlpClient ytDlpClient;
+    private State state;
 
-    public MainPanel(
+    public RootPanel(
             HttpService httpService,
             YtDlpClient ytDlpClient,
             UrlPanel urlPanel,
@@ -51,13 +51,8 @@ public class MainPanel extends JFrame {
         this.bottomPanel = bottomPanel;
         this.httpService = httpService;
         this.ytDlpClient = ytDlpClient;
-
-        setTitle("YT 下載器");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setContentPane(mainPanel());
-        pack();
-        setLocationRelativeTo(null);
-        this.init();
+        this.initLayout();
+        this.initAction();
     }
 
     private void bindEventListener() {
@@ -90,13 +85,13 @@ public class MainPanel extends JFrame {
         urlPanel.setEventListener(this::handleUrlListChanged);
     }
 
-    private void init() {
-        this.bottomPanel.setVersionInfo(new VersionInfo("-", "-"));
+    private void initAction() {
         this.bindEventListener();
         this.loadVersionInfoAsync();
     }
 
     private void loadVersionInfoAsync() {
+        contentPanel.enableUpdate(false);
         bottomPanel.showProgressBar(0);
 
         SwingWorker<VersionInfo, Void> worker = new SwingWorker<>() {
@@ -115,10 +110,17 @@ public class MainPanel extends JFrame {
                         bottomPanel.setVersionInfo(versionInfo);
                     }
                     bottomPanel.setProgress(100);
+                    contentPanel.enableUpdate(true);
                     hideProgressBarAfter(100);
                 } catch (Exception e) {
-                    log.error("非同步取得版本資訊發生異常: ", e);
+                    log.error("非同步取得版本資訊發生異常", e);
                     bottomPanel.hideProgressBar();
+                    JOptionPane.showMessageDialog(
+                            RootPanel.this,
+                            "版本檢查失敗：" + e.getCause().getMessage(),
+                            "錯誤",
+                            JOptionPane.ERROR_MESSAGE
+                    );
                 }
             }
         };
@@ -158,24 +160,13 @@ public class MainPanel extends JFrame {
         }
 
         File selectedFile = chooser.getSelectedFile();
-
         if (selectedFile == null) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "沒有選擇任何資料夾",
-                    "選擇錯誤",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            this.showDialog("選擇錯誤", "沒有選擇任何資料夾", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (!selectedFile.isDirectory()) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "請選擇資料夾，不要選擇檔案",
-                    "選擇錯誤",
-                    JOptionPane.ERROR_MESSAGE
-            );
+            this.showDialog("選擇錯誤", "請選擇資料夾，不要選擇檔案", JOptionPane.ERROR_MESSAGE);
             return;
         }
         contentPanel.setOutputDir(selectedFile.getAbsolutePath());
@@ -194,18 +185,21 @@ public class MainPanel extends JFrame {
         log.info(String.valueOf(state));
     }
 
-    private JPanel mainPanel() {
-        JPanel mainPanel = new JPanel(new BorderLayout(8, 8));
-        mainPanel.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+    private void initLayout() {
+        setLayout(new BorderLayout(8, 8));
+        setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
         // 中間主要區域：textarea 會吃掉主要可伸縮空間
-        mainPanel.add(urlPanel, BorderLayout.CENTER);
+        add(urlPanel, BorderLayout.CENTER);
 
         // 下方區 域：上面是設定表單，下面是進度 / 版本資訊
         JPanel southPanel = new JPanel(new BorderLayout(0, 8));
         southPanel.add(contentPanel, BorderLayout.CENTER);
         southPanel.add(bottomPanel, BorderLayout.SOUTH);
-        mainPanel.add(southPanel, BorderLayout.SOUTH);
-        return mainPanel;
+        add(southPanel, BorderLayout.SOUTH);
+    }
+
+    private void showDialog(String title, String message, int level) {
+        JOptionPane.showMessageDialog(this, message, title, JOptionPane.ERROR_MESSAGE);
     }
 }

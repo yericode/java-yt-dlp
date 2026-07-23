@@ -10,7 +10,7 @@ import java.awt.*;
 public class BottomPanel extends JPanel {
     private final JProgressBar progressBar = new JProgressBar(0, 100);
     private final JLabel versionLabel = new JLabel("");
-    private VersionInfo versionInfo;
+    private VersionInfo versionInfo = new VersionInfo("-", "-");
 
     public BottomPanel() {
         initLayout();

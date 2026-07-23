@@ -1,7 +1,6 @@
 package com.demo.service;
 
 import com.demo.dto.GetCurrentVersionOutput;
-import com.demo.view.MainPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

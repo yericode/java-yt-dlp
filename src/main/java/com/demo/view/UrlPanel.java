@@ -31,21 +31,27 @@ public class UrlPanel extends JScrollPane {
             @Override
             public void insertUpdate(DocumentEvent e) {
                 System.out.println("URL insert");
-                listener.onUrlListChanged(Arrays.stream(textArea.getText().split("\n")).toList());
+                listener.onUrlListChanged(handleUrlListChanged());
             }
 
             @Override
             public void removeUpdate(DocumentEvent e) {
                 System.out.println("URL remove");
-                listener.onUrlListChanged(Arrays.stream(textArea.getText().split("\n")).toList());
+                listener.onUrlListChanged(handleUrlListChanged());
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
                 System.out.println("URL change");
-                listener.onUrlListChanged(Arrays.stream(textArea.getText().split("\n")).toList());
+                listener.onUrlListChanged(handleUrlListChanged());
             }
         });
+    }
+
+    public List<String> handleUrlListChanged() {
+        return Arrays.stream(textArea.getText().split("\n"))
+                .map(String::trim)
+                .toList();
     }
 
     private void initLayout() {

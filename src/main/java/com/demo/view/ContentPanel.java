@@ -88,6 +88,10 @@ public class ContentPanel extends JPanel {
         outputDirField.setText(dir);
     }
 
+    public void enableUpdate(boolean enable) {
+        updateButton.setEnabled(enable);
+    }
+
     private CheckboxOptions checkboxOptions() {
         return new CheckboxOptions(
                 thumbnailCheckBox.isSelected(),

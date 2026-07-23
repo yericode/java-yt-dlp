@@ -1,13 +1,12 @@
 package com.demo;
 
-import com.demo.view.MainPanel;
+import com.demo.view.MainFrame;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import javax.swing.*;
-import java.nio.file.Path;
 
 @SpringBootApplication
 public class DesktopApplication {
@@ -18,9 +17,9 @@ public class DesktopApplication {
     }
 
     @Bean
-    ApplicationRunner runner(MainPanel mainPanel) {
+    ApplicationRunner runner(MainFrame mainFrame) {
         return args -> SwingUtilities.invokeLater(() -> {
-            mainPanel.setVisible(true);
+            mainFrame.setVisible(true);
         });
     }
 }
